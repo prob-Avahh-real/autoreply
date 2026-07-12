@@ -1,0 +1,47 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- 背景圆形 -->
+  <circle cx="256" cy="256" r="240" fill="url(#grad1)"/>
+  
+  <!-- 主要图标：灯笼 -->
+  <g transform="translate(256, 256)">
+    <!-- 灯笼主体 -->
+    <ellipse cx="0" cy="0" rx="80" ry="100" fill="#ff6b6b" stroke="#fff" stroke-width="4"/>
+    
+    <!-- 灯笼装饰线条 -->
+    <line x1="-60" y1="-30" x2="60" y2="-30" stroke="#fff" stroke-width="3"/>
+    <line x1="-60" y1="0" x2="60" y2="0" stroke="#fff" stroke-width="3"/>
+    <line x1="-60" y1="30" x2="60" y2="30" stroke="#fff" stroke-width="3"/>
+    
+    <!-- 灯笼顶部 -->
+    <rect x="-30" y="-120" width="60" height="20" fill="#ffd93d" stroke="#fff" stroke-width="2"/>
+    
+    <!-- 灯笼底部 -->
+    <rect x="-40" y="100" width="80" height="15" fill="#ffd93d" stroke="#fff" stroke-width="2"/>
+    
+    <!-- 灯笼穗子 -->
+    <line x1="0" y1="115" x2="0" y2="140" stroke="#ffd93d" stroke-width="4"/>
+    <circle cx="0" cy="145" r="8" fill="#ffd93d"/>
+    
+    <!-- 福字 -->
+    <text x="0" y="10" font-family="Arial, sans-serif" font-size="48" font-weight="bold" fill="#fff" text-anchor="middle">福</text>
+  </g>
+  
+  <!-- 装饰星星 -->
+  <g fill="#ffd93d" opacity="0.8">
+    <circle cx="100" cy="100" r="4"/>
+    <circle cx="412" cy="100" r="4"/>
+    <circle cx="100" cy="412" r="4"/>
+    <circle cx="412" cy="412" r="4"/>
+    <circle cx="150" cy="180" r="3"/>
+    <circle cx="362" cy="180" r="3"/>
+    <circle cx="150" cy="332" r="3"/>
+    <circle cx="362" cy="332" r="3"/>
+  </g>
+</svg>

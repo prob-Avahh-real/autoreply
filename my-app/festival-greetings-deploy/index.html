@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>节日祝福自动回复助手</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="description" content="智能识别节日，自动发送祝福，包含84个精选模板，涵盖传统节日、现代节日和西方节日">
+    <meta name="theme-color" content="#667eea">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="节日祝福">
+    <meta name="application-name" content="节日祝福">
+    <meta name="msapplication-TileColor" content="#667eea">
+    <meta name="msapplication-config" content="/browserconfig.xml">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json">
+    
+    <!-- Apple Touch Icons -->
+    <link rel="apple-touch-icon" sizes="72x72" href="/icons/icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="96x96" href="/icons/icon-96x96.png">
+    <link rel="apple-touch-icon" sizes="128x128" href="/icons/icon-128x128.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="/icons/icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="192x192" href="/icons/icon-192x192.png">
+    <link rel="apple-touch-icon" sizes="384x384" href="/icons/icon-384x384.png">
+    <link rel="apple-touch-icon" sizes="512x512" href="/icons/icon-512x512.png">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-16x16.png">
+    <link rel="shortcut icon" href="/icons/icon-192x192.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
+        body { font-family: 'Noto Sans SC', sans-serif; }
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .emoji-animation {
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .typing-indicator span {
+            width: 8px;
+            height: 8px;
+            background: #6b7280;
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }
+        .typing-indicator span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        .typing-indicator span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        @keyframes typing {
+            0%, 60%, 100% {
+                transform: translateY(0);
+                opacity: 0.7;
+            }
+            30% {
+                transform: translateY(-10px);
+                opacity: 1;
+            }
+        }
+        .line-clamp-2 {
+            display: -webkit-box;
+            display: box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        /* 平板专用样式 */
+        @media (min-width: 768px) and (max-width: 1024px) {
+            .tablet-container {
+                padding: 1rem;
+            }
+            .tablet-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 1rem;
+            }
+            .tablet-card {
+                padding: 1.5rem;
+            }
+            .tablet-button {
+                padding: 0.75rem 1.5rem;
+                font-size: 1rem;
+            }
+            .tablet-input {
+                padding: 0.75rem;
+                font-size: 1rem;
+            }
+            .tablet-category-tab {
+                padding: 0.75rem 1.25rem;
+                font-size: 0.9rem;
+            }
+            .tablet-festival-calendar {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 0.75rem;
+            }
+            .tablet-contact-item {
+                padding: 0.75rem;
+            }
+        }
+        
+        /* 触摸优化 */
+        @media (hover: none) and (pointer: coarse) {
+            .touch-target {
+                min-height: 44px;
+                min-width: 44px;
+            }
+            .touch-button {
+                padding: 12px 24px;
+                font-size: 16px;
+            }
+            .touch-input {
+                padding: 12px;
+                font-size: 16px;
+                min-height: 44px;
+            }
+            .touch-card {
+                padding: 16px;
+                margin: 8px 0;
+            }
+            .touch-category-tab {
+                padding: 12px 20px;
+                font-size: 14px;
+                min-height: 44px;
+            }
+        }
+        
+        /* 大屏幕优化 */
+        @media (min-width: 1025px) {
+            .desktop-container {
+                max-width: 1400px;
+                margin: 0 auto;
+            }
+        }
+        
+        /* 小屏幕优化 */
+        @media (max-width: 767px) {
+            .mobile-container {
+                padding: 0.5rem;
+            }
+            .mobile-grid {
+                grid-template-columns: 1fr;
+                gap: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="gradient-bg text-white shadow-lg">
+        <div class="container mx-auto px-4 py-6 tablet-container desktop-container">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <i class="fas fa-robot text-3xl emoji-animation"></i>
+                    <div>
+                        <h1 class="text-2xl font-bold">节日祝福自动回复助手</h1>
+                        <p class="text-purple-100 text-sm">智能识别节日，自动发送祝福</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span id="status" class="bg-green-400 text-green-900 px-3 py-1 rounded-full text-sm font-medium">
+                        <i class="fas fa-circle text-xs mr-1"></i>运行中
+                    </span>
+                    <button onclick="toggleSettings()" class="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg transition">
+                        <i class="fas fa-cog"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container mx-auto px-4 py-8 tablet-container desktop-container mobile-container">
+        <!-- Stats Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 tablet-grid mobile-grid">
+            <div class="bg-white rounded-xl shadow-md p-6 card-hover">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm">今日回复</p>
+                        <p class="text-2xl font-bold text-gray-800" id="todayReplies">0</p>
+                    </div>
+                    <div class="bg-blue-100 p-3 rounded-lg">
+                        <i class="fas fa-paper-plane text-blue-600"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-md p-6 card-hover">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm">本周回复</p>
+                        <p class="text-2xl font-bold text-gray-800" id="weekReplies">0</p>
+                    </div>
+                    <div class="bg-green-100 p-3 rounded-lg">
+                        <i class="fas fa-calendar-week text-green-600"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-md p-6 card-hover">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm">模板数量</p>
+                        <p class="text-2xl font-bold text-gray-800" id="templateCount">12</p>
+                    </div>
+                    <div class="bg-purple-100 p-3 rounded-lg">
+                        <i class="fas fa-file-alt text-purple-600"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-md p-6 card-hover">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm">活跃状态</p>
+                        <p class="text-2xl font-bold text-gray-800">自动</p>
+                    </div>
+                    <div class="bg-yellow-100 p-3 rounded-lg">
+                        <i class="fas fa-toggle-on text-yellow-600"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Auto Reply Rules -->
+        <div class="bg-white rounded-xl shadow-md p-6">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">自动回复规则</h3>
+            <div class="space-y-3">
+                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div>
+                        <p class="font-medium text-gray-800">关键词识别</p>
+                        <p class="text-sm text-gray-600">自动识别节日关键词并发送相应祝福</p>
+                    </div>
+                    <div class="w-12 h-6 bg-purple-500 rounded-full relative">
+                        <div class="absolute right-1 top-1 w-4 h-4 bg-white rounded-full"></div>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div>
+                        <p class="font-medium text-gray-800">智能回复</p>
+                        <p class="text-sm text-gray-600">根据上下文智能选择合适的祝福模板</p>
+                    </div>
+                    <div class="w-12 h-6 bg-purple-500 rounded-full relative">
+                        <div class="absolute right-1 top-1 w-4 h-4 bg-white rounded-full"></div>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div>
+                        <p class="font-medium text-gray-800">个性化定制</p>
+                        <p class="text-sm text-gray-600">支持自定义模板和回复规则</p>
+                    </div>
+                    <div class="w-12 h-6 bg-purple-500 rounded-full relative">
+                        <div class="absolute right-1 top-1 w-4 h-4 bg-white rounded-full"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Auto Send -->
+        <div class="bg-white rounded-xl shadow-md p-6">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">📱 手机自动发送</h3>
+            
+            <!-- Festival Calendar -->
+            <div class="mb-6">
+                <h4 class="font-medium text-gray-800 mb-3">节日日历</h4>
+                <div class="grid grid-cols-3 gap-2 tablet-festival-calendar" id="festivalCalendar">
+                    <!-- Festival dates will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Contact Management -->
+            <div class="mb-6">
+                <h4 class="font-medium text-gray-800 mb-3">联系人管理</h4>
+                <div class="flex space-x-2 mb-3">
+                    <input type="text" id="contactName" placeholder="联系人姓名" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 touch-input tablet-input">
+                    <input type="tel" id="contactPhone" placeholder="手机号码" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 touch-input tablet-input">
+                    <button onclick="addContact()" class="px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition touch-button tablet-button">添加</button>
+                </div>
+                <div id="contactsList" class="space-y-2 max-h-40 overflow-y-auto">
+                    <!-- Contacts will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Scheduled Sends -->
+            <div class="mb-6">
+                <h4 class="font-medium text-gray-800 mb-3">定时发送设置</h4>
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div>
+                            <p class="font-medium text-gray-800">节日自动发送</p>
+                            <p class="text-sm text-gray-600">逢节日自动给联系人发送祝福</p>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="autoSendToggle" class="sr-only peer">
+                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+                        </label>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">发送时间</label>
+                            <select id="sendTime" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
+                                <option value="08:00">早上 8:00</option>
+                                <option value="09:00">早上 9:00</option>
+                                <option value="10:00">早上 10:00</option>
+                                <option value="18:00">晚上 6:00</option>
+                                <option value="19:00">晚上 7:00</option>
+                                <option value="20:00">晚上 8:00</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">模板类型</label>
+                            <select id="sendTemplateType" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
+                                <option value="random">随机选择</option>
+                                <option value="modern">现代祝福</option>
+                                <option value="classical">古典诗词</option>
+                                <option value="custom">自定义模板</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Send Status -->
+            <div>
+                <h4 class="font-medium text-gray-800 mb-3">发送状态</h4>
+                <div id="sendStatus" class="p-3 bg-gray-50 rounded-lg">
+                    <p class="text-sm text-gray-600">等待设置自动发送...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Left Panel - Templates -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Template Categories -->
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-xl font-bold text-gray-800">
+                            <i class="fas fa-bookmark text-purple-600 mr-2"></i>祝福模板库
+                        </h2>
+                        <button onclick="addNewTemplate()" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition">
+                            <i class="fas fa-plus mr-2"></i>添加模板
+                        </button>
+                    </div>
+                    
+                    <!-- Category Tabs -->
+                    <div class="flex space-x-2 mb-6 overflow-x-auto">
+                        <button onclick="filterTemplates('all')" class="category-tab touch-category-tab tablet-category-tab px-4 py-2 rounded-lg font-medium transition" data-category="all">
+                            全部
+                        </button>
+                        <button onclick="filterTemplates('spring')" class="category-tab touch-category-tab tablet-category-tab px-4 py-2 rounded-lg font-medium transition" data-category="spring">
+                            � 春节
+                        </button>
+                        <button onclick="filterTemplates('newyear')" class="category-tab px-4 py-2 rounded-lg font-medium transition touch-category-tab tablet-category-tab" data-category="newyear">
+                            🎆 元旦
+                        </button>
+                        <button onclick="filterTemplates('midautumn')" class="category-tab px-4 py-2 rounded-lg font-medium transition touch-category-tab tablet-category-tab" data-category="midautumn">
+                            🥮 中秋
+                        </button>
+                        <button onclick="filterTemplates('national')" class="category-tab px-4 py-2 rounded-lg font-medium transition touch-category-tab tablet-category-tab" data-category="national">
+                            🇨🇳 国庆
+                        </button>
+                        <button onclick="filterTemplates('christmas')" class="category-tab px-4 py-2 rounded-lg font-medium transition touch-category-tab tablet-category-tab" data-category="christmas">
+                            🎄 圣诞
+                        </button>
+                        <button onclick="filterTemplates('birthday')" class="category-tab px-4 py-2 rounded-lg font-medium transition touch-category-tab tablet-category-tab" data-category="birthday">
+                            🎂 生日
+                        </button>
+                        <button onclick="filterTemplates('labor')" class="category-tab px-4 py-2 rounded-lg font-medium transition touch-category-tab tablet-category-tab" data-category="labor">
+                            🔨 五一
+                        </button>
+                        <button onclick="filterTemplates('children')" class="category-tab px-4 py-2 rounded-lg font-medium transition touch-category-tab tablet-category-tab" data-category="children">
+                            🎈 六一
+                        </button>
+                        <button onclick="filterTemplates('mother')" class="category-tab px-4 py-2 rounded-lg font-medium transition touch-category-tab tablet-category-tab" data-category="mother">
+                            🌹 母亲节
+                        </button>
+                        <button onclick="filterTemplates('father')" class="category-tab px-4 py-2 rounded-lg font-medium transition touch-category-tab tablet-category-tab" data-category="father">
+                            👔 父亲节
+                        </button>
+                        <button onclick="filterTemplates('winter')" class="category-tab px-4 py-2 rounded-lg font-medium transition touch-category-tab tablet-category-tab" data-category="winter">
+                            🥟 冬至
+                        </button>
+                        <button onclick="filterTemplates('halloween')" class="category-tab px-4 py-2 rounded-lg font-medium transition touch-category-tab tablet-category-tab" data-category="halloween">
+                            🎃 万圣节
+                        </button>
+                        <button onclick="filterTemplates('easter')" class="category-tab px-4 py-2 rounded-lg font-medium transition touch-category-tab tablet-category-tab" data-category="easter">
+                            🐰 复活节
+                        </button>
+                        <button onclick="filterTemplates('valentine')" class="category-tab px-4 py-2 rounded-lg font-medium transition touch-category-tab tablet-category-tab" data-category="valentine">
+                            💝 情人节
+                        </button>
+                        <button onclick="filterTemplates('thanksgiving')" class="category-tab px-4 py-2 rounded-lg font-medium transition touch-category-tab tablet-category-tab" data-category="thanksgiving">
+                            🦃 感恩节
+                        </button>
+                        <button onclick="filterTemplates('poetry')" class="category-tab px-4 py-2 rounded-lg font-medium transition touch-category-tab tablet-category-tab" data-category="poetry">
+                            📜 宋词
+                        </button>
+                        <button onclick="filterTemplates('tang')" class="category-tab px-4 py-2 rounded-lg font-medium transition touch-category-tab tablet-category-tab" data-category="tang">
+                            📖 唐诗
+                        </button>
+                        <button onclick="filterTemplates('yuan')" class="category-tab px-4 py-2 rounded-lg font-medium transition touch-category-tab tablet-category-tab" data-category="yuan">
+                            🎭 元曲
+                        </button>
+                        <button onclick="filterTemplates('modern')" class="category-tab px-4 py-2 rounded-lg font-medium transition touch-category-tab tablet-category-tab" data-category="modern">
+                            � 近代诗
+                        </button>
+                        <button onclick="filterTemplates('contemporary')" class="category-tab px-4 py-2 rounded-lg font-medium transition touch-category-tab tablet-category-tab" data-category="contemporary">
+                            ✨ 现代诗
+                        </button>
+                    </div>
+
+                    <!-- Templates Grid -->
+                    <div id="templatesGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Templates will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- Auto Reply Rules -->
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-xl font-bold text-gray-800">
+                            <i class="fas fa-sliders-h text-purple-600 mr-2"></i>自动回复规则
+                        </h2>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="autoReplyToggle" class="sr-only peer" checked>
+                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+                        </label>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <div class="flex items-center space-x-3">
+                                <i class="fas fa-keyword text-blue-600"></i>
+                                <div>
+                                    <p class="font-medium">关键词匹配</p>
+                                    <p class="text-sm text-gray-500">识别节日关键词自动回复</p>
+                                </div>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" class="sr-only peer" checked>
+                                <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
+                            </label>
+                        </div>
+                        
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <div class="flex items-center space-x-3">
+                                <i class="fas fa-clock text-green-600"></i>
+                                <div>
+                                    <p class="font-medium">定时发送</p>
+                                    <p class="text-sm text-gray-500">节日当天自动发送祝福</p>
+                                </div>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" class="sr-only peer" checked>
+                                <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-green-600"></div>
+                            </label>
+                        </div>
+                        
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <div class="flex items-center space-x-3">
+                                <i class="fas fa-random text-purple-600"></i>
+                                <div>
+                                    <p class="font-medium">随机模板</p>
+                                    <p class="text-sm text-gray-500">随机选择不同模板回复</p>
+                                </div>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" class="sr-only peer">
+                                <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-purple-600"></div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel - Preview & Activity -->
+            <div class="space-y-6">
+                <!-- Preview -->
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <h3 class="text-lg font-bold text-gray-800 mb-4">
+                        <i class="fas fa-eye text-purple-600 mr-2"></i>消息预览
+                    </h3>
+                    <div id="previewArea" class="bg-gray-50 rounded-lg p-4 min-h-[200px]">
+                        <div class="flex items-start space-x-3">
+                            <img src="https://picsum.photos/seed/avatar1/40/40.jpg" alt="用户" class="w-10 h-10 rounded-full">
+                            <div class="flex-1">
+                                <div class="bg-white rounded-lg p-3 shadow-sm">
+                                    <p class="text-sm text-gray-800">新年快乐！🎊</p>
+                                </div>
+                                <p class="text-xs text-gray-500 mt-1">刚刚</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start space-x-3 mt-4">
+                            <div class="w-10 h-10 bg-purple-600 rounded-full flex items-center justify-center">
+                                <i class="fas fa-robot text-white"></i>
+                            </div>
+                            <div class="flex-1">
+                                <div class="bg-purple-600 text-white rounded-lg p-3 shadow-sm">
+                                    <p id="previewMessage" class="text-sm">祝您新年快乐，万事如意！🎊 新的一年里，愿您身体健康，工作顺利，家庭幸福！</p>
+                                </div>
+                                <div class="typing-indicator mt-2" id="typingIndicator" style="display: none;">
+                                    <div class="typing-dot"></div>
+                                    <div class="typing-dot"></div>
+                                    <div class="typing-dot"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <h3 class="text-lg font-bold text-gray-800 mb-4">
+                        <i class="fas fa-history text-purple-600 mr-2"></i>最近活动
+                    </h3>
+                    <div id="activityList" class="space-y-3">
+                        <!-- Activity items will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <h3 class="text-lg font-bold text-gray-800 mb-4">
+                        <i class="fas fa-bolt text-purple-600 mr-2"></i>快捷操作
+                    </h3>
+                    <div class="grid grid-cols-2 gap-3">
+                        <button onclick="testReply()" class="bg-blue-50 hover:bg-blue-100 text-blue-600 p-3 rounded-lg transition">
+                            <i class="fas fa-play mb-1"></i>
+                            <p class="text-sm">测试回复</p>
+                        </button>
+                        <button onclick="exportTemplates()" class="bg-green-50 hover:bg-green-100 text-green-600 p-3 rounded-lg transition">
+                            <i class="fas fa-download mb-1"></i>
+                            <p class="text-sm">导出模板</p>
+                        </button>
+                        <button onclick="importTemplates()" class="bg-purple-50 hover:bg-purple-100 text-purple-600 p-3 rounded-lg transition">
+                            <i class="fas fa-upload mb-1"></i>
+                            <p class="text-sm">导入模板</p>
+                        </button>
+                        <button onclick="clearHistory()" class="bg-red-50 hover:bg-red-100 text-red-600 p-3 rounded-lg transition">
+                            <i class="fas fa-trash mb-1"></i>
+                            <p class="text-sm">清空历史</p>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-xl shadow-xl max-w-md w-full">
+                <div class="p-6 border-b">
+                    <h3 class="text-xl font-bold text-gray-800">设置</h3>
+                </div>
+                <div class="p-6 space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">回复延迟（秒）</label>
+                        <input type="number" id="replyDelay" value="2" min="0" max="60" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">每日发送限制</label>
+                        <input type="number" id="dailyLimit" value="100" min="1" max="1000" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">默认表情符号</label>
+                        <input type="text" id="defaultEmoji" value="🎊" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
+                    </div>
+                </div>
+                <div class="p-6 border-t flex justify-end space-x-3">
+                    <button onclick="toggleSettings()" class="px-4 py-2 text-gray-600 hover:text-gray-800 transition">取消</button>
+                    <button onclick="saveSettings()" class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Template Modal -->
+    <div id="templateModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-xl shadow-xl max-w-md w-full">
+                <div class="p-6 border-b">
+                    <h3 class="text-xl font-bold text-gray-800">添加新模板</h3>
+                </div>
+                <div class="p-6 space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">模板名称</label>
+                        <input type="text" id="templateName" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">分类</label>
+                        <select id="templateCategory" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
+                            <option value="spring">春节</option>
+                            <option value="newyear">元旦</option>
+                            <option value="midautumn">中秋</option>
+                            <option value="national">国庆</option>
+                            <option value="christmas">圣诞</option>
+                            <option value="birthday">生日</option>
+                            <option value="labor">五一</option>
+                            <option value="children">六一儿童节</option>
+                            <option value="mother">母亲节</option>
+                            <option value="father">父亲节</option>
+                            <option value="winter">冬至</option>
+                            <option value="halloween">万圣节</option>
+                            <option value="easter">复活节</option>
+                            <option value="valentine">情人节</option>
+                            <option value="thanksgiving">感恩节</option>
+                            <option value="poetry">宋词</option>
+                            <option value="tang">唐诗</option>
+                            <option value="yuan">元曲</option>
+                            <option value="modern">近代诗</option>
+                            <option value="contemporary">现代诗</option>
+                            <option value="custom">自定义</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">祝福内容</label>
+                        <textarea id="templateContent" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"></textarea>
+                    </div>
+                </div>
+                <div class="p-6 border-t flex justify-end space-x-3">
+                    <button onclick="closeTemplateModal()" class="px-4 py-2 text-gray-600 hover:text-gray-800 transition">取消</button>
+                    <button onclick="saveTemplate()" class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
