@@ -143,9 +143,8 @@ self.addEventListener('fetch', event => {
 
 // 处理推送通知
 self.addEventListener('push', event => {
-  let notificationData = {
-    title: '节日祝福助手',
-    body: '您有新的节日祝福提醒',
+  const options = {
+    body: event.data ? event.data.text() : '您有新的节日祝福提醒',
     icon: '/icons/icon-192x192.png',
     badge: '/icons/icon-72x72.png',
     vibrate: [200, 100, 200],
@@ -166,106 +165,24 @@ self.addEventListener('push', event => {
       }
     ]
   };
-
-  // 尝试解析推送数据
-  try {
-    if (event.data) {
-      const data = event.data.json();
-      if (data) {
-        notificationData = {
-          ...notificationData,
-          title: data.title || notificationData.title,
-          body: data.body || notificationData.body,
-          image: data.image || null,
-          data: {
-            ...notificationData.data,
-            ...data.data
-          }
-        };
-
-        // 根据通知类型添加不同的操作
-        if (data.type === 'festival') {
-          notificationData.actions = [
-            {
-              action: 'view',
-              title: '查看模板',
-              icon: '/icons/icon-72x72.png'
-            },
-            {
-              action: 'share',
-              title: '分享',
-              icon: '/icons/icon-72x72.png'
-            }
-          ];
-        } else if (data.type === 'recommendation') {
-          notificationData.actions = [
-            {
-              action: 'view',
-              title: '查看推荐',
-              icon: '/icons/icon-72x72.png'
-            },
-            {
-              action: 'dismiss',
-              title: '忽略',
-              icon: '/icons/icon-72x72.png'
-            }
-          ];
-        }
-      }
-    }
-  } catch (error) {
-    console.error('解析推送数据失败:', error);
-  }
-
+  
   event.waitUntil(
-    self.registration.showNotification(notificationData.title, notificationData)
+    self.registration.showNotification('节日祝福助手', options)
   );
 });
 
 // 处理通知点击
 self.addEventListener('notificationclick', event => {
   event.notification.close();
-
-  const action = event.action;
-  const notificationData = event.notification.data;
-
-  if (action === 'view' || action === 'explore') {
+  
+  if (event.action === 'explore') {
     event.waitUntil(
-      clients.matchAll({ type: 'window' }).then(clientList => {
-        // 如果已有打开的窗口，聚焦到该窗口
-        for (const client of clientList) {
-          if (client.url === '/' && 'focus' in client) {
-            return client.focus();
-          }
-        }
-        // 否则打开新窗口
-        if (clients.openWindow) {
-          return clients.openWindow('/');
-        }
-      })
+      clients.openWindow('/')
     );
-  } else if (action === 'share') {
-    event.waitUntil(
-      clients.matchAll({ type: 'window' }).then(clientList => {
-        for (const client of clientList) {
-          if (client.url === '/' && 'focus' in client) {
-            client.postMessage({
-              type: 'share_notification',
-              data: notificationData
-            });
-            return client.focus();
-          }
-        }
-        if (clients.openWindow) {
-          return clients.openWindow('/?action=share');
-        }
-      })
-    );
-  } else if (action === 'dismiss' || action === 'close') {
-    // 关闭通知，不做任何操作
-    return;
+  } else if (event.action === 'close') {
+    // 关闭通知，不做其他操作
   } else {
-    // 默认行为：打开主页
+    // 默认行为：打开应用
     event.waitUntil(
       clients.openWindow('/')
     );

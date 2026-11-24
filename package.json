@@ -1,0 +1,10 @@
+{
+  "name": "autoreply",
+  "version": "1.0.0",
+  "private": true,
+  "description": "节日祝福自动回复助手 PWA",
+  "scripts": {
+    "start": "node my-app/server.js",
+    "test": "node --test tests/smoke.test.mjs"
+  }
+}
